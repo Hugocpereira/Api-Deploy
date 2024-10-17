@@ -218,13 +218,13 @@
 </body>
 </html>
 <script>
-    // Função que será chamada quando o botão de busca for clicado
+    // Função botão de busca 
     document.getElementById('search-button').addEventListener('click', function() {
         const searchValue = document.getElementById('search-input').value;
 
         if (searchValue) {
             // Fazendo a requisição GET à API com o valor buscado
-            fetch(`/consulta?emp=1&ben=${searchValue}`)  // Ajuste os parâmetros da sua API aqui
+            fetch(`/consulta?emp=1&ben=${searchValue}`)  // Mudar os parâmetros Aqui ti Ronaldo
                 .then(response => response.json())
                 .then(data => {
                     // Verifica se a API retornou algum dado
