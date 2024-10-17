@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PLAM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2a3f54;
+            padding: 20px;
+            color: white;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #c2c7d0;
+            font-size: 18px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #1abb9c;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2a3f54;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .info div {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .chart {
+            height: 300px;
+            background-color: #eef3f7;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #999;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #2a3f54;
+            color: white;
+        }
+
+        .notifications {
+            background-color: #f4f6f9;
+            padding: 15px;
+            border-left: 5px solid #1abb9c;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+   
+    
+
+    <div class="sidebar">
+        <h2>PLAM</h2>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Planos</a></li>
+            <li><a href="#">Histórico de Uso</a></li>
+            <li><a href="#">Mensalidades</a></li>
+            <li><a href="#">Suporte</a></li>
+        </ul>
+    </div>
+    <div class="header">
+        <h1>Bem-vindo ao seu Painel</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar cliente (CPF ou nome)">
+            <button id="search-button">Buscar</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Bem-vindo ao seu Painel, [Nome do Cliente]</h1>
+        </div>
+
+        <div class="card">
+            <div class="info">
+                <div>
+                    <strong>Nome:</strong><br>
+                    [Nome do Cliente]
+                </div>
+                <div>
+                    <strong>CPF/CNPJ:</strong><br>
+                    [CPF ou CNPJ]
+                </div>
+                <div>
+                    <strong>Plano:</strong><br>
+                    [Master/Ideal]
+                </div>
+                <div>
+                    <strong>Mensalidade:</strong><br>
+                    R$ [Valor da Mensalidade]
+                </div>
+            </div>
+        </div>
+
+        <div class="chart">
+            Gráfico de Histórico de Utilização
+        </div>
+
+        <div class="card">
+            <h2>Atividades Recentes</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15/10/2024</td>
+                        <td>Consulta Médica</td>
+                        <td>R$ 150,00</td>
+                    </tr>
+                    <tr>
+                        <td>10/10/2024</td>
+                        <td>Exame de Sangue</td>
+                        <td>R$ 50,00</td>
+                    </tr>
+                    <tr>
+                        <td>05/10/2024</td>
+                        <td>Consulta Odontológica</td>
+                        <td>R$ 120,00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="notifications">
+            Você tem 1 nova mensagem da equipe de suporte.
+        </div>
+    </div>
+
+</body>
+</html>
+<script>
+    // Função que será chamada quando o botão de busca for clicado
+    document.getElementById('search-button').addEventListener('click', function() {
+        const searchValue = document.getElementById('search-input').value;
+
+        if (searchValue) {
+            // Fazendo a requisição GET à API com o valor buscado
+            fetch(`/consulta?emp=1&ben=${searchValue}`)  // Ajuste os parâmetros da sua API aqui
+                .then(response => response.json())
+                .then(data => {
+                    // Verifica se a API retornou algum dado
+                    if (data.length > 0) {
+                        const cliente = data[0];  // Usando o primeiro resultado
+                        
+                        // Atualizando os campos de informações com os dados do cliente
+                        document.querySelector('.info div:nth-child(1)').innerHTML = `<strong>Nome:</strong><br>${cliente.nome}`;
+                        document.querySelector('.info div:nth-child(2)').innerHTML = `<strong>CPF/CNPJ:</strong><br>${cliente.cpf_cnpj}`;
+                        document.querySelector('.info div:nth-child(3)').innerHTML = `<strong>Plano:</strong><br>${cliente.tipo_plano}`;
+                        document.querySelector('.info div:nth-child(4)').innerHTML = `<strong>Mensalidade:</strong><br>R$ ${cliente.valor_mensalidade}`;
+                    } else {
+                        alert("Cliente não encontrado.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao consultar a API:', error);
+                    alert('Erro ao buscar os dados do cliente.');
+                });
+        } else {
+            alert("Por favor, insira um CPF ou nome para buscar.");
+        }
+    });
+</script>
