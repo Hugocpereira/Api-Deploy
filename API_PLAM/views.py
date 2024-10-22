@@ -1,14 +1,10 @@
-from flask import request, Blueprint, jsonify, render_template
+from flask import request, Blueprint, jsonify
 from API_PLAM import DB_HOST, DB_PATH, DB_USER, DB_PASS
 import fdb
 
 views = Blueprint('views', __name__)
 
-@views.route('/')
-def dashboard():
-    return render_template('dashbord.html')
-
-def consultar_cliente(emp, ben, dep):
+def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None):
     try:
         with fdb.connect(
             dsn=f"{DB_HOST}:{DB_PATH}",
@@ -17,8 +13,8 @@ def consultar_cliente(emp, ben, dep):
         ) as con:
             cur = con.cursor()
 
-            # consulta 
-            cur.execute("""
+            # Construindo a consulta dinâmica
+            query = """
                 SELECT 
                     pf.emp,
                     pf.ben, 
@@ -56,27 +52,55 @@ def consultar_cliente(emp, ben, dep):
                 JOIN TBCREPLS t ON t.COD = pf.PS 
                 JOIN PSPLANOS p ON p.COD = pf.PLANO
                 JOIN psbenefi ps ON ps.emp = pf.emp AND ps.ben = pf.ben AND ps.dep = pf.dep
-                WHERE pf.emp = ? AND pf.ben = ? AND pf.dep = ?
-                AND pf.status <> 'C' AND pfl.status <> 'C'
-            """, (emp, ben, dep))
+                WHERE pf.status <> 'C' AND pfl.status <> 'C'
+            """
+
+            # Adicionando filtros condicionalmente
+            conditions = []
+            params = []
+
+            if emp:
+                conditions.append("pf.emp = ?")
+                params.append(emp)
+            if ben:
+                conditions.append("pf.ben = ?")
+                params.append(ben)
+            if dep:
+                conditions.append("pf.dep = ?")
+                params.append(dep)
+            if nome:
+                conditions.append("ps.nome LIKE ?")
+                params.append(f"%{nome}%")
+            if cpf:
+                conditions.append("ps.cpf = ?")
+                params.append(cpf)
+
+            # Concatenando condições
+            if conditions:
+                query += " AND " + " AND ".join(conditions)
+
+            cur.execute(query, tuple(params))
 
             return cur.fetchall()
 
     except fdb.DatabaseError as db_error:
         raise db_error
 
+@views.route('/', methods=['GET'])
 @views.route('/consulta', methods=['GET'])
 def consulta():
     emp = request.args.get('emp')
     ben = request.args.get('ben')
     dep = request.args.get('dep')
+    nome = request.args.get('nome')
+    cpf = request.args.get('cpf')
 
-    # Verificando parâmetros
-    if not emp or not ben or not dep:
-        return jsonify({'error': 'Parâmetros "emp", "ben" e "dep" são obrigatórios.'}), 400
+    # Verificando se ao menos um parâmetro foi fornecido
+    if not any([emp, ben, dep, nome, cpf]):
+        return jsonify({'error': 'Pelo menos um parâmetro (emp, ben, dep, nome ou cpf) deve ser fornecido.'}), 400
 
     try:
-        results = consultar_cliente(emp, ben, dep)
+        results = consultar_cliente(emp, ben, dep, nome, cpf)
 
         # Processando resultados 
         processed_results = []
