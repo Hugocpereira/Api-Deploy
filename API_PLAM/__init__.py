@@ -3,6 +3,9 @@ import fdb
 import os
 from dotenv import load_dotenv
 
+fdb.load_api(os.path.join('C:\\Program Files\\Firebird\\Firebird_3_0\\bin\\fbclient.dll'))
+
+
 load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST')

@@ -5,19 +5,10 @@ import fdb
 views = Blueprint('views', __name__)
 
 @views.route('/')
-def dashbord():
+def dashboard():
     return render_template('dashbord.html')
 
-@views.route('/consulta', methods=['GET'])
-def consulta():
-    emp = request.args.get('emp')
-    ben = request.args.get('ben')
-    dep = request.args.get('dep')
-
-    # Verificando os parâmetros obrigatórios
-    if not emp or not ben or not dep:
-        return jsonify({'error': 'Parâmetros "emp", "ben" e "dep" são obrigatórios.'}), 400
-
+def consultar_cliente(emp, ben, dep):
     try:
         with fdb.connect(
             dsn=f"{DB_HOST}:{DB_PATH}",
@@ -26,7 +17,7 @@ def consulta():
         ) as con:
             cur = con.cursor()
 
-            # Executando a consulta fornecida
+            # consulta 
             cur.execute("""
                 SELECT 
                     pf.emp,
@@ -69,37 +60,53 @@ def consulta():
                 AND pf.status <> 'C' AND pfl.status <> 'C'
             """, (emp, ben, dep))
 
-            results = cur.fetchall()
+            return cur.fetchall()
 
-            # Processando os resultados da consulta
-            processed_results = []
-            for row in results:
-                emp, ben, dep, cliente, cpf, matricula, contratante, data_guia, procedimento, copart_cliente, solicitante, prestador, cod_plano, plano = row
+    except fdb.DatabaseError as db_error:
+        raise db_error
 
-                # Decodificação se necessário
-                if isinstance(cliente, bytes):
-                    cliente = cliente.decode('latin1', errors='ignore')
-                if isinstance(cpf, bytes):
-                    cpf = cpf.decode('latin1', errors='ignore')
+@views.route('/consulta', methods=['GET'])
+def consulta():
+    emp = request.args.get('emp')
+    ben = request.args.get('ben')
+    dep = request.args.get('dep')
 
-                processed_results.append({
-                    "emp": emp,
-                    "ben": ben,
-                    "dep": dep,
-                    "cliente": cliente,
-                    "cpf": cpf,
-                    "matricula": matricula,
-                    "contratante": contratante,
-                    "data_guia": data_guia,
-                    "procedimento": procedimento,
-                    "copart_cliente": copart_cliente,
-                    "solicitante": solicitante,
-                    "prestador": prestador,
-                    "cod_plano": cod_plano,
-                    "plano": plano
-                })
+    # Verificando parâmetros
+    if not emp or not ben or not dep:
+        return jsonify({'error': 'Parâmetros "emp", "ben" e "dep" são obrigatórios.'}), 400
 
-            return jsonify(processed_results)
+    try:
+        results = consultar_cliente(emp, ben, dep)
+
+        # Processando resultados 
+        processed_results = []
+        for row in results:
+            emp, ben, dep, cliente, cpf, matricula, contratante, data_guia, procedimento, copart_cliente, solicitante, prestador, cod_plano, plano = row
+
+            # Decodificação 
+            if isinstance(cliente, bytes):
+                cliente = cliente.decode('latin1', errors='ignore')
+            if isinstance(cpf, bytes):
+                cpf = cpf.decode('latin1', errors='ignore')
+
+            processed_results.append({
+                "emp": emp,
+                "ben": ben,
+                "dep": dep,
+                "cliente": cliente,
+                "cpf": cpf,
+                "matricula": matricula,
+                "contratante": contratante,
+                "data_guia": data_guia,
+                "procedimento": procedimento,
+                "copart_cliente": copart_cliente,
+                "solicitante": solicitante,
+                "prestador": prestador,
+                "cod_plano": cod_plano,
+                "plano": plano
+            })
+
+        return jsonify(processed_results)
 
     except fdb.DatabaseError as db_error:
         error_message = str(db_error)

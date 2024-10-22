@@ -86,166 +86,80 @@
         .info div {
             flex: 1;
             text-align: center;
-            font-size: 16px;
-        }
-
-        .chart {
-            height: 300px;
-            background-color: #eef3f7;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            color: #999;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .table th, .table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .table th {
-            background-color: #2a3f54;
-            color: white;
+            font-size: 18px;
         }
 
         .notifications {
-            background-color: #f4f6f9;
-            padding: 15px;
-            border-left: 5px solid #1abb9c;
-            border-radius: 5px;
-            margin-top: 20px;
+            color: red;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-   
-    
-
     <div class="sidebar">
         <h2>PLAM</h2>
         <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Planos</a></li>
-            <li><a href="#">Histórico de Uso</a></li>
-            <li><a href="#">Mensalidades</a></li>
-            <li><a href="#">Suporte</a></li>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Clientes</a></li>
         </ul>
-    </div>
-    <div class="header">
-        <h1>Bem-vindo ao seu Painel</h1>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Buscar cliente (CPF ou nome)">
-            <button id="search-button">Buscar</button>
-        </div>
     </div>
 
     <div class="main-content">
         <div class="header">
-            <h1>Bem-vindo ao seu Painel, [Nome do Cliente]</h1>
+            <h1>Bem-vindo ao Dashboard</h1>
         </div>
 
         <div class="card">
+            <h2>Consulta de Cliente</h2>
+            <input type="text" id="search-input" placeholder="Digite o CPF ou nome do cliente">
+            <button id="search-button">Buscar</button>
+            <div class="notifications"></div>
+
             <div class="info">
-                <div>
-                    <strong>Nome:</strong><br>
-                    [Nome do Cliente]
-                </div>
-                <div>
-                    <strong>CPF/CNPJ:</strong><br>
-                    [CPF ou CNPJ]
-                </div>
-                <div>
-                    <strong>Plano:</strong><br>
-                    [Master/Ideal]
-                </div>
-                <div>
-                    <strong>Mensalidade:</strong><br>
-                    R$ [Valor da Mensalidade]
-                </div>
+                <div><strong>Nome:</strong><br></div>
+                <div><strong>CPF/CNPJ:</strong><br></div>
+                <div><strong>Plano:</strong><br></div>
+                <div><strong>Mensalidade:</strong><br></div>
             </div>
-        </div>
-
-        <div class="chart">
-            Gráfico de Histórico de Utilização
-        </div>
-
-        <div class="card">
-            <h2>Atividades Recentes</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>15/10/2024</td>
-                        <td>Consulta Médica</td>
-                        <td>R$ 150,00</td>
-                    </tr>
-                    <tr>
-                        <td>10/10/2024</td>
-                        <td>Exame de Sangue</td>
-                        <td>R$ 50,00</td>
-                    </tr>
-                    <tr>
-                        <td>05/10/2024</td>
-                        <td>Consulta Odontológica</td>
-                        <td>R$ 120,00</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="notifications">
-            Você tem 1 nova mensagem da equipe de suporte.
         </div>
     </div>
 
+    <script src="dashboard.js"></script>
 </body>
 </html>
-<script>
-    // Função botão de busca 
-    document.getElementById('search-button').addEventListener('click', function() {
-        const searchValue = document.getElementById('search-input').value;
 
-        if (searchValue) {
-            // Fazendo a requisição GET à API com o valor buscado
-            fetch(`/consulta?emp=1&ben=${searchValue}`)  // Mudar os parâmetros Aqui ti Ronaldo
-                .then(response => response.json())
-                .then(data => {
-                    // Verifica se a API retornou algum dado
-                    if (data.length > 0) {
-                        const cliente = data[0];  // Usando o primeiro resultado
-                        
-                        // Atualizando os campos de informações com os dados do cliente
-                        document.querySelector('.info div:nth-child(1)').innerHTML = `<strong>Nome:</strong><br>${cliente.nome}`;
-                        document.querySelector('.info div:nth-child(2)').innerHTML = `<strong>CPF/CNPJ:</strong><br>${cliente.cpf_cnpj}`;
-                        document.querySelector('.info div:nth-child(3)').innerHTML = `<strong>Plano:</strong><br>${cliente.tipo_plano}`;
-                        document.querySelector('.info div:nth-child(4)').innerHTML = `<strong>Mensalidade:</strong><br>R$ ${cliente.valor_mensalidade}`;
-                    } else {
-                        alert("Cliente não encontrado.");
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao consultar a API:', error);
-                    alert('Erro ao buscar os dados do cliente.');
-                });
-        } else {
-            alert("Por favor, insira um CPF ou nome para buscar.");
-        }
-    });
+<script>
+   // Função botão de busca 
+document.getElementById('search-button').addEventListener('click', function() {
+    const searchValue = document.getElementById('search-input').value;
+
+    if (searchValue) {
+        let isCPF = !isNaN(searchValue) && searchValue.length === 11;
+
+        // Fazendo a requisição GET à API com o valor buscado
+        fetch(`/consulta?emp=1&ben=${searchValue}&dep=00`)  // Adicionando o dep fixo
+            .then(response => response.json())
+            .then(data => {
+                // Verifica se a API retornou algum dado
+                if (data.length > 0) {
+                    const cliente = data[0];  // Usando o primeiro resultado
+                    
+                    // Atualizando os campos de informações com os dados do cliente
+                    document.querySelector('.info div:nth-child(1)').innerHTML = `<strong>Nome:</strong><br>${cliente.cliente}`;
+                    document.querySelector('.info div:nth-child(2)').innerHTML = `<strong>CPF/CNPJ:</strong><br>${cliente.cpf}`;
+                    document.querySelector('.info div:nth-child(3)').innerHTML = `<strong>Plano:</strong><br>${cliente.plano}`;
+                    document.querySelector('.info div:nth-child(4)').innerHTML = `<strong>Mensalidade:</strong><br>R$ ${cliente.copart_cliente}`;
+                } else {
+                    document.querySelector('.notifications').innerText = 'Cliente não encontrado.';
+                }
+            })
+            .catch(error => {
+                document.querySelector('.notifications').innerText = 'Erro ao buscar os dados do cliente.';
+                console.error('Erro ao consultar a API:', error);
+            });
+    } else {
+        document.querySelector('.notifications').innerText = 'Por favor, insira um CPF ou nome para buscar.';
+    }
+});
+ 
 </script>
