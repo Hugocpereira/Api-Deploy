@@ -116,6 +116,10 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
         raise db_error
 
 @views.route('/', methods=['GET'])
+def home():
+    return "Hello API"
+
+
 @views.route('/consulta', methods=['GET'])
 @jwt_required()
 def consulta():
