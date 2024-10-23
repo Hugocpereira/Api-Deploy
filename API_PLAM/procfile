@@ -1,1 +1,1 @@
-web: gunicorn API_PLAM:create_app()
+web: gunicorn app:app
