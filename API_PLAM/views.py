@@ -115,7 +115,7 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
     except fdb.DatabaseError as db_error:
         raise db_error
 
-@views.route('/', methods=['GET'])
+@views.route('/')
 def home():
     return "Hello API"
 
