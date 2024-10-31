@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify
+from flask import render_template, request, jsonify, Blueprint
 from flask_jwt_extended import create_access_token, jwt_required
 from datetime import timedelta
 import fdb
@@ -15,17 +15,20 @@ USUARIOS_VALIDOS = [
     {"username": "roveri", "password": "roveri123"}
 ]
 
+@views.route('/login', methods=['GET'])
+def login_page():
+    return render_template('login.html')
 
 @views.route('/login', methods=['POST'])
 def login():
     if request.method != 'POST':
         return jsonify({"msg": "Método não permitido. Use POST para acessar esta rota."}), 405
-    
+
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    
+
     user_valid = any(user["username"] == username and user["password"] == password for user in USUARIOS_VALIDOS)
-    
+
     if user_valid:
         access_token = create_access_token(identity=username, expires_delta=None)
         return jsonify(access_token=access_token), 200
