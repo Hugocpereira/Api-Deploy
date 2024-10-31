@@ -10,25 +10,31 @@ views = Blueprint('views', __name__)
 
 logging.basicConfig(level=logging.ERROR)
 
-USUARIOS_VALIDOS = {
-    "hugo": "senha123"
-}
+USUARIOS_VALIDOS = [
+    {"username": "hugo", "password": "senhasenha"},
+    {"username": "roveri", "password": "roveri123"}
+]
+
 
 @views.route('/login', methods=['POST'])
 def login():
+    if request.method != 'POST':
+        return jsonify({"msg": "Método não permitido. Use POST para acessar esta rota."}), 405
+    
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     
-    if username in USUARIOS_VALIDOS and USUARIOS_VALIDOS[username] == password:
-        # Cria um token de acesso válido por 30 minutos
-        access_token = create_access_token(identity=username, expires_delta=timedelta(minutes=30))
+    user_valid = any(user["username"] == username and user["password"] == password for user in USUARIOS_VALIDOS)
+    
+    if user_valid:
+        access_token = create_access_token(identity=username, expires_delta=None)
         return jsonify(access_token=access_token), 200
     else:
         return jsonify({"msg": "Usuário ou senha incorretos"}), 401
 
 def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=50, offset=0):
     try:
-        limit = max(1, int(limit))  # limit deve ser ao menos 1
+        limit = max(1, int(limit))  
         offset = max(0, int(offset))
         with fdb.connect(
             dsn=f"{DB_HOST}:{DB_PATH}",
@@ -37,7 +43,6 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
         ) as con:
             cur = con.cursor()
 
-            # Construindo a consulta dinâmica
             query = """
                 SELECT 
                     pf.emp,
@@ -79,7 +84,6 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
                 WHERE pf.status <> 'C' AND pfl.status <> 'C'
             """
 
-            # Adicionando filtros condicionalmente
             conditions = []
             params = []
 
@@ -99,7 +103,6 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
                 conditions.append("ps.cpf = ?")
                 params.append(cpf)
 
-            # Concatenando condições
             if conditions:
                 query += " AND " + " AND ".join(conditions)
 
@@ -117,7 +120,7 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
 
 @views.route('/')
 def home():
-    return "Hello API"
+    return "API rondando"
 
 
 @views.route('/consulta', methods=['GET'])
@@ -130,19 +133,16 @@ def consulta():
     nome = request.args.get('nome')
     cpf = request.args.get('cpf')
 
-    # Verificando se ao menos um parâmetro foi fornecido
     if not any([emp, ben, dep, nome, cpf]):
         return jsonify({'error': 'Pelo menos um parâmetro (emp, ben, dep, nome ou cpf) deve ser fornecido.'}), 400
 
     try:
         results = consultar_cliente(emp, ben, dep, nome, cpf)
 
-        # Processando resultados 
         processed_results = []
         for row in results:
             emp, ben, dep, cliente, cpf, matricula, contratante, data_guia, procedimento, copart_cliente, solicitante, prestador, cod_plano, plano = row
 
-            # Decodificação 
             if isinstance(cliente, bytes):
                 cliente = cliente.decode('latin1', errors='ignore')
             if isinstance(cpf, bytes):
