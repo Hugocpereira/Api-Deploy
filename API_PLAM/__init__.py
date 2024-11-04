@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify, render_template
 import fdb
 import os
+import platform
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from flask_cors import CORS
 
-fdb.load_api(os.path.join('C:\\Program Files\\Firebird\\Firebird_3_0\\bin\\fbclient.dll'))
-
+if platform.system() == "Windows":
+    fdb.load_api(r"C:\Program Files\Firebird\Firebird_3_0\bin\fbclient.dll")
+else:
+    fdb.load_api("/usr/lib/x86_64-linux-gnu/libfbclient.so")  
 
 load_dotenv()
 

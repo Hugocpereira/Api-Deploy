@@ -15,6 +15,8 @@ USUARIOS_VALIDOS = [
     {"username": "roveri", "password": "roveri123"}
 ]
 
+
+@views.route('/')
 @views.route('/login', methods=['GET'])
 def login_page():
     return render_template('login.html')
@@ -31,7 +33,7 @@ def login():
 
     if user_valid:
         access_token = create_access_token(identity=username, expires_delta=None)
-        return jsonify(access_token=access_token), 200
+        return jsonify(token=access_token), 200
     else:
         return jsonify({"msg": "Usuário ou senha incorretos"}), 401
 
@@ -121,15 +123,9 @@ def consultar_cliente(emp=None, ben=None, dep=None, nome=None, cpf=None, limit=5
     except fdb.DatabaseError as db_error:
         raise db_error
 
-@views.route('/')
-def home():
-    return "API rondando"
-
-
-@views.route('/consulta', methods=['GET'])
+@views.route('/api/consulta', methods=['GET'])
 @jwt_required()
-def consulta():
-    print(request.headers)
+def consulta_api():
     emp = request.args.get('emp')
     ben = request.args.get('ben')
     dep = request.args.get('dep')
@@ -173,8 +169,6 @@ def consulta():
     except fdb.DatabaseError as db_error:
         logging.error(f"Erro ao acessar o banco de dados: {db_error}")
         return jsonify({'error': f'Erro ao consultar o banco de dados: {str(db_error)}'}), 500
-
-
     except Exception as e:
         logging.error(f"Erro inesperado: {e}")
         return jsonify({'error': f'Erro inesperado: {str(e)}'}), 500
